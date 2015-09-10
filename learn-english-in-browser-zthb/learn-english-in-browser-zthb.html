@@ -1,0 +1,225 @@
+<html>
+<head>
+
+<style type="text/css">
+a.em {
+  font-size: 120%;
+  font-weight: 700;
+  margin: 0 1em;
+}
+
+a:focus {
+  border-width: 1px;
+  border-style: solid;
+}
+
+label.em {
+  font-size: 120%;
+  font-weight: 700;
+}
+
+input.autoplay {
+  margin-left: 8em;
+}
+
+</style>
+
+<script type="text/javascript" src="file_list.js"></script>
+<script type="text/javascript">
+
+// String format() function
+String.prototype.format = function() {
+    var formatted = this;
+    for (var i = 0; i < arguments.length; i++) {
+        var regexp = new RegExp('\\{'+i+'\\}', 'gi');
+        formatted = formatted.replace(regexp, arguments[i]);
+    }
+    return formatted;
+};
+
+
+// DirFileLists example (included in file_list.js)
+/*
+    var DirFileLists = [
+    { dirBase : "./a/All Kinds of Faces/",
+      fileLists : [
+        "", "raz_allkindsfaces_title_text.mp3",
+        "page-1.jpg", "",
+        "page-2.jpg", "",
+        "page-3.jpg", "raz_allkindsfaces_p3_text.mp3",
+        "page-4.jpg", "raz_allkindsfaces_p4_text.mp3",
+      ]
+    },
+    { dirBase : "./aa/My Family/",
+      fileLists : [
+        "", "raz_myfamily_title_text.mp3",
+        "page-1.jpg", "",
+        "page-2.jpg", "",
+        "page-3.jpg", "raz_myfamily_p3_text.mp3",
+        "page-4.jpg", "raz_myfamily_p4_text.mp3",
+      ]
+    },
+    ];
+*/
+
+var dirIndex = 0;
+var pageIndex = 0;
+
+function get_src(basePath, fileName)
+{
+  // If fileName is empty, do not return basePath
+  if (fileName == "") {
+    return "";
+  }
+  else {
+    return basePath + fileName;
+  }
+}
+
+function play_page()
+{
+  var eleImage = document.getElementById("play_image");
+  var eleVideo = document.getElementById("play_video");
+  var dirBase = DirFileLists[dirIndex].dirBase;
+  var fileLists = DirFileLists[dirIndex].fileLists;
+
+  eleImage.src = get_src(dirBase, fileLists[pageIndex]);
+  eleVideo.src = get_src(dirBase, fileLists[pageIndex + 1]);
+}
+
+function play_next()
+{
+  if (pageIndex + 2 < DirFileLists[dirIndex].fileLists.length) {
+    pageIndex += 2;
+    play_page();
+  }
+}
+
+function play_first()
+{
+  // For play first: use -2 + 2 = 0
+  pageIndex = -2;
+  play_next();
+}
+
+function play_prev()
+{
+  if (pageIndex - 2 >= 0) {
+    pageIndex -= 2;
+    play_page();
+  }
+}
+
+function load_course_list()
+{
+  // Generate course list from DirFileLists.
+
+  var ele = document.getElementById("course_list_div");
+  var html = "";
+  var lastHeading = "";
+  for (var i = 0; i < DirFileLists.length; i++) {
+    var dirBase = DirFileLists[i].dirBase;
+
+    // Show 1st level folder as heading
+    var splits = dirBase.split('/');
+    var heading = splits[1];
+    var course = splits[2];
+
+    if (heading != lastHeading) {
+      lastHeading = heading;
+      html += "<h3>" + heading + "</h3>";
+    }
+
+    // Add a course
+    var piece = "<a href='#' onclick='select_course({0})'>{1}</a><br/>".format(i, course);
+    html += piece;
+  }
+
+  ele.innerHTML = html;
+}
+
+function show_main(visible)
+{
+  var ele = document.getElementById("main_div");
+  if (visible) {
+    ele.style.display = "block";
+  }
+  else {
+    ele.style.display = "none";
+  }
+}
+
+function toggle_course_list()
+{
+  var ele = document.getElementById("course_list_div");
+  if (ele.style.display == "block") {
+    ele.style.display = "none";
+    show_main(true);
+  }
+  else {
+    ele.style.display = "block";
+    show_main(false);
+  }
+}
+
+function select_course(index)
+{
+  dirIndex = index;
+  var ele = document.getElementById("current_course");
+  ele.innerHTML = DirFileLists[dirIndex].dirBase;
+
+  toggle_course_list();
+
+  play_first();
+}
+
+function onload()
+{
+  load_course_list();
+}
+
+function toggle_autoplay()
+{
+  var eleCheckBox = document.getElementById("autoplay_checkbox");
+  var eleVideo = document.getElementById("play_video");
+
+  eleVideo.autoplay = eleCheckBox.checked
+}
+
+</script>
+</head>
+
+<body onload="onload()">
+
+<p>
+<a class="em" href="#" onclick="toggle_course_list()">Select a Course:</a>
+<label id="current_course">..........</label>
+
+<input class="autoplay" id="autoplay_checkbox" name="autoplay_checkbox" type="checkbox" onclick="toggle_autoplay()" />
+<label class="em" for="autoplay_checkbox">Auto Play</label>
+
+</p>
+
+<p>
+<div id="course_list_div" style="display: none"></div>
+</p>
+
+<div id="main_div" style="display: none">
+
+<p>
+<img id="play_image" src="" height="500"/>
+</p>
+
+<p>
+<video id="play_video" src="" controls="controls" height="0" width="600"></video>
+</p>
+
+<p>
+<a class="em" href="#" onclick="play_prev()">Previous</a>
+<a class="em" href="#" onclick="play_next()">Next</a>
+</p>
+
+</div>
+
+</body>
+</html>
