@@ -22,6 +22,26 @@ input.autoplay {
   margin-left: 8em;
 }
 
+div.header {
+  text-align: center;
+  witdh: 100%;
+  height: 50;
+}
+
+div.main {
+  text-align: center;
+  top: 50;
+  width: 100%;
+}
+
+div.course_list {
+  text-align: center
+  top: 50;
+  width: 100%;
+}
+
+}
+
 </style>
 
 <script type="text/javascript" src="file_list.js"></script>
@@ -191,33 +211,30 @@ function toggle_autoplay()
 
 <body onload="onload()">
 
-<p>
+<div class="header">
+
 <a class="em" href="#" onclick="toggle_course_list()">Select a Course:</a>
 <label id="current_course">..........</label>
 
 <input class="autoplay" id="autoplay_checkbox" name="autoplay_checkbox" type="checkbox" onclick="toggle_autoplay()" />
 <label class="em" for="autoplay_checkbox">Auto Play</label>
 
-</p>
+</div>
 
-<p>
-<div id="course_list_div" style="display: none"></div>
-</p>
 
-<div id="main_div" style="display: none">
+<div class="course_list" id="course_list_div" style="display: none"></div>
 
-<p>
-<img id="play_image" src="" height="500"/>
-</p>
 
-<p>
+<div class="main" id="main_div" style="display: block">
 <video id="play_video" src="" controls="controls" height="0" width="600"></video>
-</p>
 
-<p>
+<br/>
 <a class="em" href="#" onclick="play_prev()">Previous</a>
 <a class="em" href="#" onclick="play_next()">Next</a>
-</p>
+
+<br/>
+
+<img id="play_image" src="" style="max-height: 720; max-width: 1024;" />
 
 </div>
 

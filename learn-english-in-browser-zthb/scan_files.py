@@ -5,6 +5,7 @@ import os
 """
 
 _verbose_mode = False
+_has_error = False
 
 FTYPE_NONE = -1
 FTYPE_JPG = 0
@@ -18,7 +19,8 @@ def log(msg):
         print msg
 
 def error(msg):
-    print msg
+    _has_error = True
+    print '[Error]: %s' % msg
 
 def check_file_type(filePath):
     if filePath.endswith('.mp3') or filePath.endswith('.jpg'):
@@ -42,7 +44,7 @@ def get_file_index_type(fileName):
     end = -1
     ftype = FTYPE_NONE
 
-    if fileName.endswith('_title_text.mp3'):
+    if fileName.endswith('_title_text.mp3') or fileName.endswith('_title.mp3'):
         index = 0
         ftype = FTYPE_MP3
     elif fileName.endswith('.jpg'):
@@ -53,6 +55,9 @@ def get_file_index_type(fileName):
         ftype = FTYPE_JPG
     elif fileName.endswith('.mp3'):
         end = fileName.rfind('_text.mp3')
+        if end == -1:
+            # Some file names do not have '_text'
+            end = fileName.rfind('.mp3')
         start = fileName.rfind('_p', 0, end)
         if start != -1:
             start += 2
@@ -67,7 +72,7 @@ def get_file_index_type(fileName):
             pass
 
     if index == -1 or ftype == FTYPE_NONE:
-        error('Unhandled file type: %s', fileName)
+        error('Unhandled file type: %s' % fileName)
 
     return (index, ftype)
 
@@ -133,6 +138,7 @@ def generate_js(filePathList, workDir):
 
     baseDirMap = {}
     for filePath in filePathList:
+        log('Adding file: %s' % filePath)
         (baseDir, fileName) = os.path.split(filePath)
         (index, ftype) = get_file_index_type(fileName)
         add_to_file_map(baseDirMap, baseDir, fileName, index, ftype)
@@ -158,4 +164,7 @@ if __name__ == '__main__':
     workDir = os.getcwd()
     filePathList = get_file_path_list(workDir)
     generate_js(filePathList, workDir)
+    if _has_error:
+        readline()
+ 
 
